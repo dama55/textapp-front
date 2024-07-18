@@ -7,6 +7,7 @@ function My_Page() {
     const [display_text, setDisplay] = useState('Up Load Text');
     const baseURL = 'http://localhost:5000';
     const [contents, setContents] = useState([]);
+    const [input_text, setInputText] = useState("");
 
     useEffect( () => {
         update();
@@ -16,14 +17,13 @@ function My_Page() {
     const update = () => {
         axios.get(baseURL + "/get-texts").then((response) => {
             setContents(response.data);
-            console.log(response.data);
         }).catch(err => {
             console.error("Failed to get response", err);
         });
     }
 
-    const Add_handler = (text) => {
-        axios.post(baseURL + "/save-text", {text: text})
+    const Add_handler = () => {
+        axios.post(baseURL + "/save-text", {text: input_text})
         .then(() => {
             update();
         }).catch(err => {
@@ -31,8 +31,9 @@ function My_Page() {
         })
     }
     const Remove_handler = (id) => {
-        axios.delete(baseURL + "/save-text", {id: id})
+        axios.delete(baseURL + "/delete-text", {data: {id: id}}) // deleteでは，dataフィールドとしてデータを送信する
         .then(() => {
+            console.log("id: ", id);
             update();
         }).catch(err => {
             console.error("Failed to ")
@@ -40,7 +41,7 @@ function My_Page() {
     }
 
     const rows = contents.map((content, index) => {
-        return <One_Content key = {content.id} no={index+1}  {...content} />
+        return <One_Content key = {content.id} no={index+1} removeHandler={() => Remove_handler(content.id) }  {...content} />
         // console.log("here!")
     })
 
@@ -53,8 +54,13 @@ function My_Page() {
             </div>
             
             <div className='input_box'>
-                <input className='input_text' type="text" />
-                <input className='button' type="button" value={'add'}/>
+                <
+                    input className='input_text' 
+                    type="text" 
+                    value={input_text} 
+                    onChange={(e) => setInputText(e.target.value)} 
+                />
+                <input className='button' type="button" onClick={Add_handler} value={'add'}/>
             </div>
             
             <div className="content_row root">
